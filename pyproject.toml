@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "flash-attention"
+version = "0.1.0"
+description = "Implementation of Flash Attention paper"
+authors = ["Srinath"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.10"
+torch = {version = "^2.3.1+cu121", source = "pytorch-cuda"}
+huggingface-hub = "^0.23.4"
+pandas = "^2.2.2"
+datasets = "^2.20.0"
+tensorboard = "^2.17.0"
+tools = "^0.1.9"
+setuptools = "^70.1.0"
+
+[tool.poetry.group.dev.dependencies]
+jupyterlab = "^4.2.1"
+numba = "^0.59.1"
+
+
+[[tool.poetry.source]]
+name = "pytorch-cuda"
+url = "https://download.pytorch.org/whl/cu121"
+priority = "explicit"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

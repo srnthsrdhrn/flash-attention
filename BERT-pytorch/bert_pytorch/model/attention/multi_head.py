@@ -18,8 +18,10 @@ class MultiHeadedAttention(nn.Module):
         self.linear_layers = nn.ModuleList([nn.Linear(d_model, d_model) for _ in range(3)])
         self.output_linear = nn.Linear(d_model, d_model)
         if attn == "flash_attn":
+            print("Running flash attn")
             self.attention = FlashAttention()
         else:
+            print("Running regular attn")
             self.attention = Attention()
 
         self.dropout = nn.Dropout(p=dropout)

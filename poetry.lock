@@ -856,6 +856,16 @@ test-full = ["adlfs", "aiohttp (!=4.0.0a0,!=4.0.0a1)", "cloudpickle", "dask", "d
 tqdm = ["tqdm"]
 
 [[package]]
+name = "gputil"
+version = "1.4.0"
+description = "GPUtil is a Python module for getting the GPU status from NVIDA GPUs using nvidia-smi."
+optional = false
+python-versions = "*"
+files = [
+    {file = "GPUtil-1.4.0.tar.gz", hash = "sha256:099e52c65e512cdfa8c8763fca67f5a5c2afb63469602d5dcb4d296b3661efb9"},
+]
+
+[[package]]
 name = "grpcio"
 version = "1.64.1"
 description = "HTTP/2-based RPC framework"
@@ -3662,4 +3672,4 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "ce9ef60d97c259794423ed66b7e7e12384931e5522cc583281975bd6d185ecbb"
+content-hash = "84f4846c797681e52d466093fb7436f1a9ef3ab29c5e3d6dad66e04ed6588cc4"

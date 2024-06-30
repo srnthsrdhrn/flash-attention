@@ -5,7 +5,7 @@ from torch.utils.data import DataLoader
 
 from ..model import BERTLM, BERT
 from .optim_schedule import ScheduledOptim
-from torch.utils.tensorboard.writer import SummaryWriter
+# from torch.utils.tensorboard.writer import SummaryWriter
 
 import tqdm
 import time
@@ -41,7 +41,7 @@ class BERTTrainer:
         # Setup cuda device for BERT training, argument -c, --cuda should be true
         cuda_condition = torch.cuda.is_available() and with_cuda
         self.device = torch.device("cuda:0" if cuda_condition else "cpu")
-        self.summary_writer = SummaryWriter(flush_secs=10)
+        # self.summary_writer = SummaryWriter(flush_secs=10)
 
         # This BERT model will be saved every epoch
         self.bert = bert
@@ -132,7 +132,7 @@ class BERTTrainer:
             post_fix = {
                 "epoch": epoch,
                 "iter": i,
-                "avg_loss": avg_loss / count,
+                "avg_loss": (avg_loss / count) if count > 0 else 0,
                 "avg_acc": total_correct / total_element * 100,
                 "loss": loss.item()
             }
@@ -142,12 +142,12 @@ class BERTTrainer:
                 diff = curr_time - prev_time
                 prev_time = curr_time
                 post_fix['iteration_time'] = "%.8f seconds"% diff
-                data_iter.write(str(post_fix))
-                self.summary_writer.add_scalar('loss', post_fix['iteration_time'],epoch*i)
-                self.summary_writer.add_scalar('avg_loss', post_fix['avg_loss'],epoch*i)
-                self.summary_writer.add_scalar('avg_acc', post_fix['avg_acc'],epoch*i)
-                self.summary_writer.add_scalar('iteration_time', post_fix['iteration_time'],epoch*i)
-                self.summary_writer.add_scalar('accuracy', total_correct * 100.0 / total_element,epoch*i)
+                # data_iter.write(str(post_fix))
+                # self.summary_writer.add_scalar('loss', post_fix['iteration_time'],epoch*i)
+                # self.summary_writer.add_scalar('avg_loss', post_fix['avg_loss'],epoch*i)
+                # self.summary_writer.add_scalar('avg_acc', post_fix['avg_acc'],epoch*i)
+                # self.summary_writer.add_scalar('iteration_time', post_fix['iteration_time'],epoch*i)
+                # self.summary_writer.add_scalar('accuracy', total_correct * 100.0 / total_element,epoch*i)
 
         print("EP%d_%s, avg_loss=" % (epoch, str_code), avg_loss / len(data_iter), "total_acc=",
               total_correct * 100.0 / total_element)
@@ -161,7 +161,7 @@ class BERTTrainer:
         :return: final_output_path
         """
         output_path = file_path + ".ep%d" % epoch
-        torch.save(self.bert.cpu(), output_path)
-        self.bert.to(self.device)
-        print("EP:%d Model Saved on:" % epoch, output_path)
+        # torch.save(self.bert.cpu(), output_path)
+        # self.bert.to(self.device)
+        # print("EP:%d Model Saved on:" % epoch, output_path)
         return output_path

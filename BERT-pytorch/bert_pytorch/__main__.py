@@ -5,6 +5,39 @@ from torch.utils.data import DataLoader
 from .model import BERT
 from .trainer import BERTTrainer
 from .dataset import BERTDataset, WordVocab
+import time
+import GPUtil
+from threading import Thread
+import time
+import psutil
+
+class Monitor(Thread):
+    def __init__(self, delay):
+        super(Monitor, self).__init__()
+        self.stopped = False
+        self.delay = delay # Time between calls to Monitor
+        self.start_time = 0
+        self.end_time = 0
+    def start(self) -> None:
+        self.start_time = time.time()
+        super().start()
+        
+    def run(self):
+        while not self.stopped:
+            print("\n\n\n")
+            print('The CPU usage is: ', psutil.cpu_percent(self.delay))
+            print('RAM memory % used:', psutil.virtual_memory()[2])
+            temperatures = psutil.sensors_temperatures()
+            print(f"CPU Temperature: {temperatures['acpitz'][0].current}")
+            print("GPU Utilization")
+            GPUtil.showUtilization(all=True)
+            print("\n\n\n")
+            time.sleep(self.delay)
+
+    def stop(self):
+        self.stopped = True
+        self.end_time = time.time()
+        print(f"Total runtime: {self.end_time - self.start_time} seconds")
 
 
 def train():
@@ -26,7 +59,7 @@ def train():
     parser.add_argument("-w", "--num_workers", type=int, default=5, help="dataloader worker size")
 
     parser.add_argument("--with_cuda", type=bool, default=True, help="training with CUDA: true, or false")
-    parser.add_argument("--log_freq", type=int, default=50, help="printing loss every n iter: setting n")
+    parser.add_argument("--log_freq", type=int, default=200, help="printing loss every n iter: setting n")
     parser.add_argument("--corpus_lines", type=int, default=None, help="total number of lines in corpus")
     parser.add_argument("--cuda_devices", type=int, nargs='+', default=None, help="CUDA device ids")
     parser.add_argument("--on_memory", type=bool, default=True, help="Loading on memory: true or false")
@@ -62,11 +95,16 @@ def train():
     trainer = BERTTrainer(bert, len(vocab), train_dataloader=train_data_loader, test_dataloader=test_data_loader,
                           lr=args.lr, betas=(args.adam_beta1, args.adam_beta2), weight_decay=args.adam_weight_decay,
                           with_cuda=args.with_cuda, cuda_devices=args.cuda_devices, log_freq=args.log_freq)
+    performance_monitor = Monitor(5)
+    try:
+        print("Training Start")
+        performance_monitor.start()
+        for epoch in range(args.epochs):
+            trainer.train(epoch)
+            trainer.save(epoch, args.output_path)
 
-    print("Training Start")
-    for epoch in range(args.epochs):
-        trainer.train(epoch)
-        trainer.save(epoch, args.output_path)
-
-        if test_data_loader is not None:
-            trainer.test(epoch)
+            if test_data_loader is not None:
+                trainer.test(epoch)
+    finally:
+        performance_monitor.stop()
+    
